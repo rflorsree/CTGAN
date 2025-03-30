@@ -17,7 +17,7 @@ cantidad_sintetica = 10000
 print("Cargando datos.")
 df = pd.read_excel(archivo_excel, sheet_name=hoja)
 
-#fechas a string  
+#fechas a string  evita errores
 fechas = ["INICIO INCIDENCIA", "HORA DE LLEGADA", "CIERRE DE INCIDENCIA"]
 for col in fechas:
     df[col] = df[col].astype(str)
