@@ -1,0 +1,5 @@
+sdv>=1.0.0
+pandas
+matplotlib
+seaborn
+openpyxl
