@@ -5,45 +5,46 @@ import os
 from sdv.metadata import SingleTableMetadata
 from sdv.single_table import CTGANSynthesizer
 
-# === CONFIGURACIÓN GENERAL ===
+
 archivo_excel = "EXCELINCIDENCIAS.xlsx"
 hoja = "Sheet1"
 archivo_salida = "datos_sinteticos.xlsx"
 carpeta_graficas = "graficas"
 cantidad_sintetica = 10000
 
-# === CARGA Y PREPROCESAMIENTO ===
-print("Cargando datos...")
+
+
+print("Cargando datos.")
 df = pd.read_excel(archivo_excel, sheet_name=hoja)
 
-# Convertir fechas a string (recomendado para evitar errores)
+#fechas a string  
 fechas = ["INICIO INCIDENCIA", "HORA DE LLEGADA", "CIERRE DE INCIDENCIA"]
 for col in fechas:
     df[col] = df[col].astype(str)
 
-# === CREAR METADATOS AUTOMÁTICAMENTE ===
-print("Detectando metadatos...")
+
+print("Detectando columnas")
 metadata = SingleTableMetadata()
 metadata.detect_from_dataframe(data=df)
 
-# === ENTRENAMIENTO DEL MODELO ===
-print("Entrenando CTGANSynthesizer...")
+# Entrenamiento
+print("Entrenando CTGANS")
 synthesizer = CTGANSynthesizer(metadata=metadata, epochs=400)
 synthesizer.fit(df)
 print("Entrenamiento completado.")
 
-# === GENERACIÓN DE DATOS SINTÉTICOS ===
-print(f"Generando {cantidad_sintetica} filas sintéticas...")
+# Generacion de datos
+print(f"Generando {cantidad_sintetica} ")
 synthetic_data = synthesizer.sample(num_rows=cantidad_sintetica)
 
-# === GUARDAR RESULTADO ===
+# ALmacena resultados en la carpeta
 synthetic_data.to_excel(archivo_salida, index=False)
 print(f"Datos sintéticos guardados en: {archivo_salida}")
 
-# === CREACIÓN DE CARPETA PARA GRÁFICAS ===
+# carpeta de imagenes
 os.makedirs(carpeta_graficas, exist_ok=True)
 
-# === COMPARACIÓN ESTADÍSTICA ===
+# graficas de comparacion
 print("\n=== Estadísticas comparativas ===")
 columnas_numericas = df.select_dtypes(include=["number"]).columns
 resumen = pd.DataFrame(columns=["Variable", "Conjunto", "Media", "Mediana", "Desviación estándar"])
@@ -59,7 +60,7 @@ for col in columnas_numericas:
 
 print(resumen.to_string(index=False))
 
-# === GRÁFICAS NUMÉRICAS ===
+# graficas de distribucion
 print("\nGenerando gráficas de distribución...")
 for col in columnas_numericas:
     plt.figure(figsize=(10, 5))
@@ -70,7 +71,7 @@ for col in columnas_numericas:
     plt.savefig(f"{carpeta_graficas}/{col}_distribucion.png")
     plt.close()
 
-# === GRÁFICAS CATEGÓRICAS ===
+# graficas categoricas
 columnas_categoricas = df.select_dtypes(include=["object"]).columns
 for col in columnas_categoricas:
     plt.figure(figsize=(12, 5))
